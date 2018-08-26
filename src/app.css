@@ -92,19 +92,15 @@
 .game-area {
   border-top: solid 1px var(--area-border-color);
   border-left: solid 1px var(--area-border-color);
-}
-
-.game-area-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(5, var(--cell-size));
+  grid-template-rows: repeat(5, var(--cell-size));
 }
 
 .game-area-cell {
-  flex: 1;
   border-color: rgba(0, 0, 0, 0.54);
   border-style: solid;
   border-width: 0 1px 1px 0;
-  width: var(--cell-size);
-  height: var(--cell-size);
 }
 
 .game-area-cell.filled {

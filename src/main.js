@@ -4,20 +4,8 @@ import * as R from 'ramda';
 import * as RK from 'kefir.ramda';
 import * as L from 'partial.lenses';
 
-export function Cell(val, isChecked = false) {
-  this.val = val;
-  this.checked = isChecked;
-}
-
-Cell.prototype.toggle = function () {
-  this.checked = !this.checked;
-}
-
-//
-
-export function Indicator(val) {
-  this.val = val;
-}
+import { lensMatrix } from './utils';
+import { Area } from './const';
 
 //
 
@@ -29,38 +17,32 @@ export const board = [
   [1, 1, 0, 0, 0],
 ];
 
+const createArea = (w, h) => R.splitEvery(w, Array(w * h).fill(0));
+
 export const board$ = U.atom(board);
+
+export const state = U.atom({ area: board, player: createArea(Area.WIDTH, Area.HEIGHT)});
+
+state.log('state');
+
+export const areaIn = U.view(['area', lensMatrix(Area.WIDTH)]);
+export const playerAreaIn = U.view(['player', lensMatrix(Area.WIDTH)]);
+
+export const areaDiff =
+  U.thru(U.combine([areaIn(state), playerAreaIn(state)], R.pair),
+         RK.apply(RK.zip),
+         RK.map(RK.apply(RK.multiply)),
+         RK.splitEvery(Area.WIDTH));
+
+export const isSolved = RK.equals(areaIn(state), playerAreaIn(state)).log('state solved?');
 
 export const x$ = board$.map(R.identity);
 export const y$ = board$.map(R.transpose);
 
-const groupArr = RK.groupWith(RK.equals);
-
-const eq0 = RK.equals(0);
-const listEq0 = RK.all(eq0);
-const filter = RK.filter(R.complement(listEq0));
-
 const doSomething =
-  R.map(R.compose(R.map(R.length), filter, groupArr));
+  RK.map(RK.compose(RK.map(RK.length),
+                    RK.filter(RK.complement(RK.all(RK.equals(0)))),
+                    RK.groupWith(RK.equals)));
 
 export const xHint$ = x$.map(doSomething);
 export const yHint$ = y$.map(doSomething);
-
-const combine = (xs, xHint) =>
-  U.thru(U.combine([xHint, xs], (a, b) => [a, b]),
-         RK.apply(R.zip),
-         RK.map(R.compose(R.unnest,
-                          R.adjust(R.of, 0))))
-
-const xs$ = combine(x$, xHint$).log('xs');
-const ys$ = combine(y$, yHint$).log('ys');
-
-const ysHints$ =
-  U.thru(ys$,
-         RK.pluck(0),
-         RK.prepend(null));
-
-export const complete$ =
-  U.combine([xs$, ysHints$], (a, b) => [b, ...a]).log('complete');
-
-ysHints$.log('jorma');
