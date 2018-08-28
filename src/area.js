@@ -1,30 +1,27 @@
 import * as React from 'karet';
 import * as U from 'karet.util';
-import * as R from 'ramda';
-import * as RK from 'kefir.ramda';
-import * as L from 'partial.lenses';
+import * as R from 'kefir.ramda';
 
-import { lensMatrix } from './utils';
-import { Area as A } from './const';
+import { lensMatrix, invokeIf2, C } from './utils';
 
-const C = RK.always;
-
-const getCellClass = RK.cond([
-  [RK.is(Array), C('array')],
-  [RK.equals(1), C('filled')],
-  [RK.equals(0), C('empty')],
-  [RK.equals(null), C('null')],
-  [RK.T, C('other')],
+const getCellClass = R.cond([
+  [R.is(Array), C('array')],
+  [R.equals(1), C('filled')],
+  [R.equals(0), C('empty')],
+  [R.equals(null), C('null')],
+  [R.T, C('other')],
 ]);
 
-const Area = ({ area, player, onClickFn, width = A.WIDTH, height = A.HEIGHT }) =>
-  <div className="cell game-area">
+const Area = ({ player, onClickFn, width, height = width }) =>
+  <div className="cell game-area"
+       style={{ gridTemplateColumns: `repeat(${width}, var(--cell-size))`,
+                gridTemplateRows: `repeat(${height}, var(--cell-size))`, }}>
     {U.thru(player,
             U.view(lensMatrix(width)),
             U.mapElems((cell, i) =>
               <div key={i}
                    className={U.cns('game-area-cell', getCellClass(cell))}
-                   onClick={() => onClickFn ? onClickFn(player, i) : console.warn('no handler given')}>
+                   onClick={() => invokeIf2(onClickFn, player, i) }>
                 {cell}
               </div>))}
   </div>;
