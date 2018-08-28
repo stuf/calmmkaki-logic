@@ -8,8 +8,6 @@
     "kefir": "^3.8.3",
     "kefir.ramda": "^0.25.5",
     "partial.lenses": "^14.4.0",
-    "png.js": "^0.2.1",
-    "pngjs": "^3.3.3",
     "ramda": "^0.25.0",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
