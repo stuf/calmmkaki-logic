@@ -1,7 +1,5 @@
 :root {
-  --grid-width: 15;
-  --grid-height: 15;
-  --cell-size: 30px;
+  --cell-size: 25px;
   --divider-color: rgba(0, 0, 0, 0.12);
   --divider-color-inverse: rgba(255, 255, 255, 0.12);
   --area-border-color: rgba(0, 0, 0, 0.54);

@@ -3,16 +3,24 @@
  */
 import * as U from 'karet.util';
 import * as R from 'kefir.ramda';
+import * as L from 'partial.lenses';
 
 import { parsePuzzleString, initMatrix, multiplyMatrix, signatureForArray } from './utils';
 import { areaIn, playerAreaIn, collapseM } from './meta';
 
 // After implementing data import, these hardcoded puzzles are going to be cleared
 import puzzleData, { dimensions as puzzleDimensions } from './puzzles/puzzle01';
+import _data from './puzzles/puzzle02';
 
 // And so are these as well
-const [pw, ph] = puzzleDimensions;
-const puzzleArea = parsePuzzleString(pw, puzzleData);
+// const [pw, ph] = puzzleDimensions;
+// const puzzleArea = parsePuzzleString(pw, puzzleData);
+const { width: pw, height: ph } = _data;
+
+const puzzleArea =
+  R.pipe(L.get(['pixels', 'data']),
+         R.map(x => x === 1 ? 0 : 1),
+         R.splitEvery(pw))(_data);
 
 const collapse = collapseM(pw);
 
@@ -20,13 +28,19 @@ const collapse = collapseM(pw);
  * Observable atom representing the game state, with the underlying solution and
  * the solution entered by the player.
  */
-export const state = U.atom({ area: puzzleArea, player: initMatrix(pw, ph) });
+export const state = U.atom({ area: puzzleArea, player: initMatrix(pw, ph), loaded: _data });
+
+const loaded$ = U.view('loaded', state);
 
 const area$ = areaIn(state);
 const player$ = playerAreaIn(state);
 
+area$.log('area$');
+
 const areaM$ = collapse(area$);
 const playerM$ = collapse(player$);
+
+export const loaded = U.toProperty(loaded$);
 
 export const matrix = { area: areaM$, player: playerM$ };
 

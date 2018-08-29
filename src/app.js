@@ -4,16 +4,18 @@ import * as R from 'ramda';
 
 import './app.css';
 
+import File from './components/file';
 import Placeholder from './components/placeholder';
 import Hints from './components/hints';
 import Area from './components/area';
-import { isSolved, hints, matrix } from './game';
+import { isSolved, hints, matrix, loaded } from './game';
 import { asBoolean } from './utils';
 
 const App = () =>
   <div className="app">
     <div className="main-grid">
       {/* Success status indicator */}
+      <File />
       <React.Fragment>
         {U.when(isSolved,
                 <div className="alert">
@@ -35,8 +37,8 @@ const App = () =>
 
         <Area area={matrix.area}
               player={matrix.player}
-              width={15}
-              height={15}
+              width={U.view('width', loaded)}
+              height={U.view('height', loaded)}
               onClickFn={(a, i) => a.view([i, asBoolean]).modify(R.not)} />
       </div>
     </div>

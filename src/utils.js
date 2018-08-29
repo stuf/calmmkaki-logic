@@ -1,6 +1,7 @@
 import * as U from 'karet.util';
 import * as R from 'kefir.ramda';
 import * as L from 'partial.lenses';
+import PNGReader from 'png.js';
 
 export const invokeIf = (fn, x) => fn && fn(x);
 export const invokeIf2 = (fn, x, y) => fn && fn(x, y);
@@ -62,3 +63,42 @@ export const signatureForArray =
   R.map(R.compose(R.map(R.length),
     R.filter(R.complement(R.all(R.equals(0)))),
     R.groupWith(R.equals)))
+
+export const parseFile = data => {
+  const bus = U.bus();
+
+  const reader = new PNGReader(data);
+
+  reader.parse((err, png) => {
+    if (err) bus.error(err);
+
+    bus.push(png);
+
+    bus.end();
+  })
+
+  return U.toProperty(bus);
+}
+
+
+export const readFile = file => {
+  const bus = U.bus();
+
+  const reader = new FileReader();
+
+  reader.onload = e => {
+    console.log('reader on load', { e });
+    bus.push(e);
+    bus.end();
+  };
+
+  reader.onerror = e => {
+    console.error('reader errored', { e });
+    bus.error(e);
+    bus.end();
+  }
+
+  reader.readAsArrayBuffer(file);
+
+  return bus.toProperty();
+}
