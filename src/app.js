@@ -4,9 +4,9 @@ import * as R from 'ramda';
 
 import './app.css';
 
-import Placeholder from './placeholder';
-import Hints from './hints';
-import Area from './area';
+import Placeholder from './components/placeholder';
+import Hints from './components/hints';
+import Area from './components/area';
 import { isSolved, hints, matrix } from './game';
 import { asBoolean } from './utils';
 

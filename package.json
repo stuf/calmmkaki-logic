@@ -1,8 +1,10 @@
 {
-  "name": "kokkeli",
-  "version": "0.1.0",
+  "name": "observe-my-nonograms",
+  "version": "0.2.0",
   "private": true,
+  "homepage": "https://observe-my-nonograms.surge.sh",
   "dependencies": {
+    "gh-pages": "^1.2.0",
     "karet": "^4.0.0",
     "karet.util": "^0.19.0-0",
     "kefir": "^3.8.3",
@@ -17,9 +19,12 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "npm run build",
+    "deploy": "surge --project ./build/ --domain observe-my-nonograms.surge.sh"
   },
   "devDependencies": {
-    "eslint": "^5.4.0"
+    "eslint": "^5.4.0",
+    "surge": "^0.20.1"
   }
 }

@@ -1,48 +1,43 @@
+/**
+ * Game state management
+ */
 import * as U from 'karet.util';
 import * as R from 'kefir.ramda';
 
-import { lensMatrix } from './utils';
+import { parsePuzzleString, initMatrix, multiplyMatrix, signatureForArray } from './utils';
+import { areaIn, playerAreaIn, collapseM } from './meta';
+
+// After implementing data import, these hardcoded puzzles are going to be cleared
 import puzzleData, { dimensions as puzzleDimensions } from './puzzles/puzzle01';
 
-//
-
+// And so are these as well
 const [pw, ph] = puzzleDimensions;
-const puzzleDataProcessed =
-  R.compose(R.splitEvery(pw),
-            R.map(parseInt),
-            R.split(''))(puzzleData);
+const puzzleArea = parsePuzzleString(pw, puzzleData);
 
-const createArea = (w, h) => R.splitEvery(w, Array(w * h).fill(0));
+const collapse = collapseM(pw);
 
-const collapseM = U.view(lensMatrix(pw));
-
-export const state = U.atom({ area: puzzleDataProcessed, player: createArea(pw, ph) });
-
-export const areaIn = U.view(['area']);
-export const playerAreaIn = U.view(['player']);
+/**
+ * Observable atom representing the game state, with the underlying solution and
+ * the solution entered by the player.
+ */
+export const state = U.atom({ area: puzzleArea, player: initMatrix(pw, ph) });
 
 const area$ = areaIn(state);
 const player$ = playerAreaIn(state);
 
-const areaM$ = collapseM(area$);
-const playerM$ = collapseM(player$);
+const areaM$ = collapse(area$);
+const playerM$ = collapse(player$);
 
 export const matrix = { area: areaM$, player: playerM$ };
 
-export const areaDiff =
-  U.thru(U.combine([areaM$, playerM$], R.pair),
-         R.apply(R.zip),
-         R.map(R.apply(R.multiply)),
-         R.splitEvery(pw));
+/**
+ * Calculated diff for the underlying area and the player's entry
+ */
+export const areaDiff = multiplyMatrix(areaM$, playerM$, pw);
 
 export const isSolved = R.equals(areaM$, playerM$);
 
-export const getArrHints =
-  R.map(R.compose(R.map(R.length),
-                  R.filter(R.complement(R.all(R.equals(0)))),
-                  R.groupWith(R.equals)));
-
-//
+// Combined
 
 export const axes = {
   area: {
@@ -62,12 +57,12 @@ export const axes = {
  */
 export const hints = {
   area: {
-    x: getArrHints(axes.area.x),
-    y: getArrHints(axes.area.y),
+    x: signatureForArray(axes.area.x),
+    y: signatureForArray(axes.area.y),
   },
   player: {
-    x: getArrHints(axes.player.x),
-    y: getArrHints(axes.player.y),
+    x: signatureForArray(axes.player.x),
+    y: signatureForArray(axes.player.y),
   },
 };
 

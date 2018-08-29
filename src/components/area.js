@@ -2,7 +2,7 @@ import * as React from 'karet';
 import * as U from 'karet.util';
 import * as R from 'kefir.ramda';
 
-import { lensMatrix, invokeIf2, C } from './utils';
+import { lensMatrix, invokeIf2, C } from '../utils';
 
 const getCellClass = R.cond([
   [R.is(Array), C('array')],
